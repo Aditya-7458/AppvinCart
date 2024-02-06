@@ -1,0 +1,121 @@
+/* Header Styles */
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 20px; /* Adjusted padding */
+    text-align: left;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .logo {
+    font-size: 24px; /* Adjusted font size */
+    margin: 0;
+}
+
+header nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+header nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+header nav ul li:last-child {
+    margin-right: 0;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 20px;
+    transition: background-color 0.3s;
+}
+
+header nav ul li a:hover {
+    background-color: #555;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styles */
+.button-container {
+    text-align: right;
+}
+
+.button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #45a049;
+}
+
+/* Product List Styles */
+.product-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex; /* Display products in a row */
+    flex-wrap: wrap; /* Allow products to wrap to the next line */
+    justify-content: flex-start; /* Align products to the left */
+}
+
+.product-item {
+    margin-right: 20px; /* Add spacing between products */
+    margin-bottom: 20px; /* Add spacing between rows */
+    flex: 0 0 calc(33.333% - 20px); /* Adjust width for three products per row */
+    max-width: calc(33.333% - 20px); /* Adjust max-width for three products per row */
+}
+
+.product-item:last-child {
+    margin-right: 0; /* Remove margin from the last product in a row */
+}
+
+.product-item img {
+    max-width: 100%;
+    max-height: 200px;
+    height: auto;
+}
+
+
+.product-image-container {
+    position: relative; /* Set the container as a positioning context for the tag */
+}
+
+.new-arrival-tag {
+    position: absolute; /* Position the tag absolutely within the container */
+    top: 5px; /* Adjust the top position as needed */
+    left: 5px; /* Adjust the left position as needed */
+    background-color: #eb2217; /* Set the background color of the tag to deep red */
+    color: white; /* Set the text color of the tag to white */
+    padding: 5px; /* Add padding to the tag */
+    border-radius: 5px; /* Add border-radius for rounded corners */
+    z-index: 1; /* Ensure the tag is above the image */
+}
+

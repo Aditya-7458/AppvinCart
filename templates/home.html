@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <!-- Corrected the path to the CSS file -->
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+</head>
+<body>
+    <!-- Include header -->
+    <header>
+        <div>AppvinCart</div>
+        <nav>
+            <ul>
+                <li><a href="{% url 'Home' %}">Home</a></li>
+                <li><a href="{% url 'Cart' %}">Cart</a></li>
+                <li><a href="{% url 'Orders' %}">Orders</a></li>
+                <li><a href="{% url 'Profile' %}">Profile</a></li>
+            </ul>
+        </nav>
+    </header>
+    <!-- Your main content goes here -->
+    <div class="sort-options">
+        <form method="GET">
+            <label for="sort-by">Sort by:</label>
+            <input type="radio" name="sort_by" id="sort-by-price" value="price" >
+            <label for="sort-by-price">Price</label>
+            <input type="radio" name="sort_by" id="sort-by-new-arrival" value="new_arrival">
+            <label for="sort-by-new-arrival">New Arrival</label>
+            <button type="submit">Sort</button>
+        </form>
+    </div>
+
+
+    
+
+<ul class="product-list">
+    {% for product in products %}
+        <li class="product-item">
+            <h2>{{ product.name }}</h2>
+            <div class="product-image-container">
+                {% if sort_by == 'new_arrival' and forloop.first %}
+                    <span class="new-arrival-tag">New Arrival</span>
+                  
+                {% endif %}
+               
+            </div>
+
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <p>Price: ₹{{ product.price }}</p>
+            <p>{% if product.stock_available %}In Stock{% else %}Out of Stock{% endif %}</p>
+            {% if sort_by == 'new_arrival' and forloop.last %}
+             
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+
+
+
+
+
+
+    
+   
+</body>
+</html>
