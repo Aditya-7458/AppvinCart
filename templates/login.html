@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Add any CSS styling here -->
+   
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+
+         <!-- Messages rendering -->
+        {% if messages %}
+         <ul class="messages">
+             {% for message in messages %}
+                 <li>{{ message }}</li>
+             {% endfor %}
+         </ul>
+        {% endif %}
+        <form action="{% url 'LogIn' %}" method="post">
+            {% csrf_token %} <!-- Include CSRF token here -->
+            <!-- Username input -->
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <!-- Password input -->
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <!-- Submit button -->
+            <button type="submit">Login</button>
+        </form>
+       
+        <!-- Link to register page -->
+        <p>Don't have an account? <a href="{% url 'SignUp' %}">Register here</a></p>
+        <a href="{% url 'forgotPassword' %}">Forgot Password</a>
+
+    </div>
+</body>
+</html>
