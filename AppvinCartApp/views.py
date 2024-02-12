@@ -93,14 +93,18 @@ def update_cart(request, cart_item_id):
     return redirect('Cart')
 
 
-
 @login_required
 def viewOrders(request):
-    orders = Orders.objects.order_by('-order_date')
+    # Filter orders by the currently logged-in user
+    user = request.user
+    orders = Orders.objects.filter(customer__email=user.email).order_by('-order_date')
+
     context = {'orders': orders}
     if not orders:
         context['no_orders'] = True
     return render(request, 'Orders.html', context)
+
+
     
 
 
@@ -283,6 +287,13 @@ def addToCart(request, productId):
     if request.method == 'POST':
         # Get product details
         product = get_object_or_404(Products, id=productId)
+
+
+        product_data = {
+            'product_name': product.name,
+            'product_id': product.id,
+            'product_price': float(product.price),
+        }
         
         # Get the currently logged-in user
         user = request.user
@@ -302,7 +313,9 @@ def addToCart(request, productId):
             
         else:
             messages.info(request, "Product already exists in the cart.")
-            
+        product_data_list = request.session.get('product_data_list', [])
+        product_data_list.append(product_data)
+        request.session['product_data_list'] = product_data_list
         
         return redirect('Cart')
     else:

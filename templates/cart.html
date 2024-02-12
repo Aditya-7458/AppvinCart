@@ -45,12 +45,22 @@
         </table>
         <p>Total Price: ₹{{ total_price }}</p>
         
+    
+
+
+
+
+
         <!-- Form for placing the order -->
         <form action="{% url 'placeOrder' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="total_price" value="{{ total_price }}">
+            {% for product_data in request.session.product_data_list %}
+                <input type="hidden" name="product_data_list" value="{{ product_data }}">
+            {% endfor %}
             <button type="submit">Place Order</button>
         </form>
+
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}
