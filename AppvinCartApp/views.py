@@ -1,6 +1,8 @@
-from django.shortcuts import render , redirect
+from decimal import Decimal
+from django.shortcuts import get_object_or_404, render , redirect
 from django.http import HttpResponse
-from .models import Products,Users
+from .models import CartItem,Cart, OrderItem, Products,Users,Orders
+
 
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -10,12 +12,20 @@ from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 
 
-
+from django.contrib.auth import logout
 
 from django.core.mail import send_mail
 from django.conf import settings
 import random
 
+
+
+from django.contrib.auth.decorators import login_required
+
+
+
+
+from django.utils import timezone
 
 
 
@@ -44,17 +54,73 @@ def Home(request):
     return render(request, 'home.html',data)
 
 
+@login_required
+def view_Cart(request):
+    # Get the current user's cart
+    cart = Cart.objects.get(user=request.user)
+    
+    # Get all items in the cart
+    cart_items = cart.items.all()
 
-def Cart(request):
-    return render(request,'cart.html')
+    total_price = sum(cart_item.product.price * cart_item.quantity for cart_item in cart_items)
+    
+    # Pass messages in the context
+    messages_to_render = messages.get_messages(request)
+    
+    return render(request, 'cart.html', {'cart_items': cart_items, 'messages': messages_to_render, 'total_price': total_price})
+@login_required
+def update_cart(request, cart_item_id):
+    if request.method == 'POST':
+        # Get the cart item object
+        cart_item = get_object_or_404(CartItem, id=cart_item_id)
 
-def Orders(request):
-    return render(request,'orders.html')
+        # Get the new quantity from the form submission
+        new_quantity = int(request.POST.get('quantity'))
+
+        if new_quantity > 0:
+            # Update the quantity of the cart item
+            cart_item.quantity = new_quantity
+            cart_item.save()
+            messages.success(request, "Quantity updated successfully.")
+        else:
+            # If the quantity is 0 or negative, remove the item from the cart
+            cart_item.delete()
+            messages.success(request, "Item removed from cart.")
+
+
+
+
+    return redirect('Cart')
+
+
+
+@login_required
+def viewOrders(request):
+    orders = Orders.objects.order_by('-order_date')
+    context = {'orders': orders}
+    if not orders:
+        context['no_orders'] = True
+    return render(request, 'Orders.html', context)
+    
+
 
 def Profile(request):
-    login=False
-    if login==False:
-        return render(request,'login.html')
+    # Check if the user is logged in
+    if request.user.is_authenticated:
+        # Get the user object
+        user = request.user
+        first_name = user.first_name
+        last_name = user.last_name
+        
+    
+        # Pass the user data to the template
+        return render(request, 'profile.html', {'user': user,'first_name': first_name, 'last_name': last_name})
+    else:
+        # If the user is not logged in, redirect to the login page
+        return redirect('LogIn')
+
+
+
 
 
 
@@ -69,7 +135,7 @@ def LogIn(request):
             # If authentication is successful, log in the user
             login(request, user)
             # Redirect to a success page or dashboard
-            return HttpResponse('loged in')   # Replace 'dashboard' with your desired URL name
+            return redirect('Profile')   # Replace 'dashboard' with your desired URL name
         else:
             # If authentication fails, display an error message
             messages.error(request, 'Invalid username or password')
@@ -116,7 +182,11 @@ def SignUp(request):
 
 
 def LogOut(request):
-    return HttpResponse('Loged out')
+    
+    logout(request)
+    # Redirect to a specific URL after logout, or to a default one if not specified
+    return redirect('Home') 
+   
 
 
 
@@ -146,7 +216,6 @@ def forgotPassword(request):
 
 
 
-
 def resetPassword(request):
     if request.method == 'POST':
         otp_entered = request.POST.get('otp')
@@ -167,3 +236,117 @@ def resetPassword(request):
             messages.error(request, 'Invalid OTP. Please try again.')
             return redirect('resetPassword')
     return render(request, 'reset_password.html')
+
+
+
+
+@login_required
+def buyNow(request):
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        product_name = request.POST.get('product_name')
+        product_image_url = request.POST.get('product_image_url')
+        product_price = request.POST.get('product_price')
+        data={
+            'product_id': product_id,
+            'product_name': product_name,
+            'product_image_url': product_image_url,
+            'product_price': product_price
+        } 
+       
+        return render(request, 'order.html',data)
+    else:
+        return HttpResponse("Invalid request method")
+
+
+
+
+    
+
+def generate_order_number():
+    # Check if any orders exist in the database
+    if Orders.objects.exists():
+        # Get the latest order from the database
+        latest_order = Orders.objects.latest('order_date')
+        order_number = latest_order.order_number
+        order_id = int(order_number.split('-')[-1])
+        new_order_id = order_id + 1
+        new_order_number = f"{timezone.now().strftime('%Y%m%d')}-{new_order_id:04d}"
+    else:
+        # If no orders exist, start with 1
+        new_order_number = f"{timezone.now().strftime('%Y%m%d')}-0001"
+    return new_order_number
+
+
+@login_required
+def addToCart(request, productId):
+    if request.method == 'POST':
+        # Get product details
+        product = get_object_or_404(Products, id=productId)
+        
+        # Get the currently logged-in user
+        user = request.user
+        
+        try:
+            # Try to retrieve the user's cart
+            user_cart = user.cart
+        except Cart.DoesNotExist:
+            # If the user doesn't have a cart, create one
+            user_cart = Cart.objects.create(user=user)
+        
+        # Add the product to the cart
+        cart_item, added = CartItem.objects.get_or_create(cart=user_cart, product=product)
+        
+        if added:
+            messages.success(request, "Product added to cart successfully.")
+            
+        else:
+            messages.info(request, "Product already exists in the cart.")
+            
+        
+        return redirect('Cart')
+    else:
+        return HttpResponse("Invalid request method")
+
+
+
+@login_required
+def placeOrder(request):
+    if request.method == 'POST':
+        # Extract form data
+        product_id = request.POST.get('product_id')
+        product_name = request.POST.get('product_name')
+        product_price = request.POST.get('product_price')
+        total_price = request.POST.get('total_price')
+
+        # Get the currently logged-in user
+        user = request.user
+
+        # Get the related Users instance
+        users_instance = Users.objects.get(username=user.username)
+        
+
+        # Create a new order instance
+        order = Orders.objects.create(
+            order_number=generate_order_number(),
+            total_amount=product_price,
+            customer=users_instance,
+            order_date=timezone.now()
+        )
+
+        # Add order item
+        order_item = OrderItem.objects.create(
+            order=order,
+            product_id=product_id,
+            product_name=product_name,
+            price=product_price,
+            quantity=1  # You may need to adjust this based on your requirements
+        )
+
+        # Add a success message
+        messages.success(request, 'Order placed successfully!')
+
+        # Redirect to the Orders page after placing the order
+        return redirect('viewOrders')
+    else:
+        return HttpResponse("Invalid request method")

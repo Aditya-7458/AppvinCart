@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+</head>
+<body>
+    {% load static %} <!-- Load the static files template library -->
+
+    <!-- Add other user profile information here -->
+    
+    <!-- Display profile picture -->
+    <!-- Use the static template tag to reference the default profile picture -->
+    <img src="{% static 'default_profile_picture.jpg' %}" alt="Profile Picture">
+
+    <h1>Welcome, {{ first_name }} {{ last_name }}</h1>
+    <p>Email: {{ user.email }}</p>
+
+    <form action="{% url 'LogOut' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
+    <!-- Add a link to go back to the home page -->
+    <a href="{% url 'Home' %}">Go to Home</a>
+</body>
+</html>
+
+
+
+
+

@@ -10,14 +10,6 @@
 <body>
     <div class="registration-container">
         <h2>User Registration</h2>
-        <!-- Display Django messages -->
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
         <form action="{% url 'SignUp' %}" method="post">
             {% csrf_token %} <!-- Add CSRF token here -->
             <!-- First Name input -->
