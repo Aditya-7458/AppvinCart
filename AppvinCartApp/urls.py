@@ -41,5 +41,9 @@ urlpatterns = [
     
 
 
+    path('success/', views.success_view, name='success_url'),
+    path('cancel/', views.cancel_view, name='cancel_url'),
+
+
 
 ]

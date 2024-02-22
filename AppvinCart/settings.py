@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
-    'AppvinCartApp'
+    'AppvinCartApp',
+    #'AppvinCartApp.app.paymentsConfig',
     
 ]
 
@@ -220,4 +221,9 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+
+
+STRIPE_SECRET_KEY = 'sk_test_51OjzlcSGpIaSB0fiKyG9348AHhPxF0azvjXmDNJpnic5SswHNkXjWkV9tZGKZwNSQMdoZQU4BrNxi7Ur54xRIv6H001GeGV7xA'
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51OjzlcSGpIaSB0fideLnPS24muoo1PQm52HOCGXXnIhidAuBVuT5OJ6Y5vfuf6LxyacAsnsSkA25DeOXtDIwXQrD00AqLHFkRF'
 

@@ -1,3 +1,4 @@
+from django.urls import reverse
 from decimal import Decimal
 from django.shortcuts import get_object_or_404, render , redirect
 from django.http import HttpResponse
@@ -17,6 +18,8 @@ from django.contrib.auth import logout
 from django.core.mail import send_mail
 from django.conf import settings
 import random
+import stripe
+
 
 
 
@@ -322,6 +325,7 @@ def addToCart(request, productId):
         return HttpResponse("Invalid request method")
 
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
 def placeOrder(request):
@@ -356,10 +360,37 @@ def placeOrder(request):
             quantity=1  # You may need to adjust this based on your requirements
         )
 
+        unit_amount_cents = int(float(product_price) * 100)
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'inr',
+                    'product_data': {
+                        'name': product_name,
+                    },
+                    'unit_amount': unit_amount_cents,  # Stripe expects price in cents
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url = request.build_absolute_uri(reverse('success_url')),
+            cancel_url = request.build_absolute_uri(reverse('cancel_url'))
+        )
+
         # Add a success message
         messages.success(request, 'Order placed successfully!')
 
         # Redirect to the Orders page after placing the order
-        return redirect('viewOrders')
+        return redirect(checkout_session.url)
     else:
         return HttpResponse("Invalid request method")
+    
+
+
+
+def success_view(request):
+    return HttpResponse("Your payment was successful. Thank you for your order!")
+
+def cancel_view(request):
+    return HttpResponse("Your payment was canceled.")
